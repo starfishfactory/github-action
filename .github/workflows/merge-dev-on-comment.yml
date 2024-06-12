@@ -1,0 +1,21 @@
+name: Merge PR to dev on "merge dev" comment
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  pull_request_comment:
+    runs-on: ubuntu-latest
+    if: github.event.issue.pull_request != '' && contains(github.event.comment.body, 'merge dev')
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Merge PR branch to dev
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_BRANCH=$(jq -r .pull_request.head.ref < "${{ github.event_path }}")
+          git checkout dev
+          git merge --no-ff origin/$PR_BRANCH -m "Merged PR #${{ github.event.issue.number }} from $PR_BRANCH to dev"
+          git push origin dev
