@@ -11,6 +11,24 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Check if dev branch exists
+        id: check_dev_branch
+        run: |
+          if git show-ref --verify --quiet refs/heads/dev; then
+            echo "dev branch exists."
+            echo "::set-output name=exists::true"
+          else
+            echo "dev branch does not exist."
+            echo "::set-output name=exists::false"
+          fi
+
+      - name: Create dev branch from main if not exists
+        if: steps.check_dev_branch.outputs.exists == 'false'
+        run: |
+          git checkout main
+          git checkout -b dev
+          git push origin dev
+
       - name: Merge PR branch to dev
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
