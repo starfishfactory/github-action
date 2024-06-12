@@ -11,6 +11,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Start comment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=${{ github.event.issue.number }}
+          curl -s -H "Authorization: token $GITHUB_TOKEN" \
+               -H "Content-Type: application/json" \
+               -X POST \
+               -d "{\"body\": \"dev 에 머지 시작\"}" \
+               "https://api.github.com/repos/${{ github.repository }}/issues/$PR_NUMBER/comments"
+
       - name: Check if dev branch exists
         id: check_dev_branch
         run: |
